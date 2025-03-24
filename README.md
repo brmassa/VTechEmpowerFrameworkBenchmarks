@@ -2,36 +2,36 @@
 
 Server "competition" *Web Framework Benchmarks*: https://www.techempower.com/benchmarks
 
-It designed to demonstrate how to use <a href="https://modules.vlang.io/veb.html">Ved</a>'s built-in features to create a web application.
+It designed to demonstrate how to use <a href="https://modules.vlang.io/veb.html">Veb</a>'s built-in features to create a web application.
 
 > NOTE: Cache test still to be properly implemented
 
 ## Scenarios
 
-We created some scenarios. One on each folder. All scenarios use **Ved** server, the <a href="https://vlang.io">V</a> lang built-in web framework.
+We created some scenarios. One on each folder. All scenarios use **Veb** server, the <a href="https://vlang.io">V</a> lang built-in web framework.
 
-### Ved with Postgres (ved-pg/)
-
-```
-v run ved-pg/
-```
-
-### Ved with Postgres and ORM (ved-pg-orm/) (TBD)
+### Veb with Postgres (veb-pg/)
 
 ```
-v run ved-pg-orm/
+v run veb-pg/
 ```
 
-### Ved with MySQL/MariaDB (ved-my/) (TBD)
+### Veb with Postgres and ORM (veb-pg-orm/) (TBD)
 
 ```
-v run ved-my/
+v run veb-pg-orm/
 ```
 
-### Ved with MySQL/MariaDB and ORM (ved-my-orm/) (TBD)
+### Veb with MySQL/MariaDB (veb-my/) (TBD)
 
 ```
-v run ved-my-orm/
+v run veb-my/
+```
+
+### Veb with MySQL/MariaDB and ORM (veb-my-orm/) (TBD)
+
+```
+v run veb-my-orm/
 ```
 
 ## Local Setup
