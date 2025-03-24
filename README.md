@@ -2,11 +2,13 @@
 
 Server "competition" *Web Framework Benchmarks*: https://www.techempower.com/benchmarks
 
-It designed to demonstrate how to use Ved's built-in features to create a web application.
+It designed to demonstrate how to use <a href="https://modules.vlang.io/veb.html">Ved</a>'s built-in features to create a web application.
+
+> NOTE: Cache test still to be properly implemented
 
 ## Scenarios
 
-We created some scenarios. One on each folder. All scenarios use Ved server, the <a href="https://vlang.io">V</a> lang built-in web framework.
+We created some scenarios. One on each folder. All scenarios use **Ved** server, the <a href="https://vlang.io">V</a> lang built-in web framework.
 
 ### Ved with Postgres (ved-pg/)
 
