@@ -8,7 +8,8 @@ import time
 import veb
 
 struct World {
-	id            int @[primary; sql: serial]
+	id int @[primary; sql: serial]
+mut:
 	random_number int @[sql: 'randomNumber']
 }
 
@@ -46,52 +47,7 @@ fn main() {
 }
 
 pub fn (app &App) index(mut ctx Context) veb.Result {
-	return ctx.html('<h1><i>V</i> web server</h1>
-	  <p>Welcome to <a href="https://vlang.io">V</a> lang example web server for <a href="https://www.techempower.com/benchmarks">Web Framework Benchmarks</a></p>
-
-    <h2>Settings</h2>
-    <ul>
-      <li>v: 0.4.10</li>
-      <li>Postgres (version is a user choice)</li>
-      <li>Used V libraries and modules:
-        <ul>
-          <li><a href="https://modules.vlang.io/veb.html">ved</a>: web server and front-end</li>
-          <li><a href="https://modules.vlang.io/db.pg.html">db.pg</a>: Postgres connector</li>
-        </ul>
-      </li>
-    </ul>
-
-    <h2>Local Setup</h2>
-    <ul>
-    <li><a href="/setup_db">Database setup</a></li>
-    </ul>
-
-    <h2>Benchmark Tests</h2>
-    <ul>
-      <li><a href="/json">JSON serialization</a></li>
-      <li><a href="/db">Single query</a></li>
-      <li><a href="/queries">Multiple queries</a>
-      <ul>
-        <li><a href="/queries?queries=1">Multiple queries 1</a></li>
-        <li><a href="/queries?queries=5">Multiple queries 5</a></li>
-        <li><a href="/queries?queries=10">Multiple queries 10</a></li>
-        <li><a href="/queries?queries=15">Multiple queries 15</a></li>
-        <li><a href="/queries?queries=20">Multiple queries 20</a></li>
-        <li></li>
-        <li><a href="/queries?queries=0">Multiple queries 0</a></li>
-        <li><a href="/queries?queries=10">Multiple queries 10</a></li>
-        <li><a href="/queries?queries=50">Multiple queries 50</a></li>
-        <li><a href="/queries?queries=100">Multiple queries 100</a></li>
-        <li><a href="/queries?queries=500">Multiple queries 500</a></li>
-        <li><a href="/queries?queries=1000">Multiple queries 1000</a></li>
-      </ul>
-      </li>
-      <li><a href="/queries">Cached queries</a></li>
-      <li><a href="/fortunes">Fortunes</a></li>
-      <li><a href="/updates">Data updates</a></li>
-      <li><a href="/plaintext">Plaintext</a></li>
-    </ul>
-    ')
+	return $veb.html()
 }
 
 // Reset DB World table and fill with 10000 rows with random numbers from 1 to 10000
@@ -168,18 +124,7 @@ pub fn (app &App) plaintext(mut ctx Context) veb.Result {
 
 pub fn (app &App) db(mut ctx Context) veb.Result {
 	id := rand.int_in_range(1, 10001) or { panic(err) }
-
-	world_map := app.db.exec_one('SELECT id, randomNumber FROM World WHERE id = ${id}') or {
-		return ctx.server_error('Database query failed for id = "${id}"')
-	}
-
-	id_ := world_map.vals[0]
-	random_number_ := world_map.vals[1]
-
-	world := World{
-		id:            id_ or { '' }.int()
-		random_number: random_number_ or { '' }.int()
-	}
+	world := get_world(app, id)
 
 	set_header(mut ctx, 'application/json')
 	return ctx.json(json.encode(world))
@@ -193,35 +138,46 @@ fn set_header(mut ctx Context, content_type string) {
 }
 
 pub fn (app &App) queries(mut ctx Context) veb.Result {
+	queries := get_query(ctx)
+
+	mut worlds := []World{}
+	for _ in 0 .. queries {
+		id := rand.int_in_range(1, 10001) or { panic(err) }
+		world := get_world(app, id)
+		worlds << world
+	}
+
+	set_header(mut ctx, 'application/json')
+	return ctx.json(json.encode(worlds))
+}
+
+@[inline]
+fn get_world(app &App, id int) World {
+	world_map := app.db.exec_one('SELECT id, randomNumber FROM World WHERE id = ${id}') or {
+		return World{}
+	}
+
+	id_ := world_map.vals[0]
+	random_number_ := world_map.vals[1]
+
+	world := World{
+		id:            id_ or { '' }.int()
+		random_number: random_number_ or { '' }.int()
+	}
+
+	return world
+}
+
+@[inline]
+fn get_query(ctx Context) int {
 	mut queries := ctx.query['queries'].int()
-	queries = if queries < 1 {
+	return if queries < 1 {
 		1
 	} else if queries > 500 {
 		500
 	} else {
 		queries
 	}
-
-	mut worlds := []World{}
-	for _ in 0 .. queries {
-		id := rand.int_in_range(1, 10001) or { panic(err) }
-
-		world_map := app.db.exec_one('SELECT id, randomNumber FROM World WHERE id = ${id}') or {
-			return ctx.server_error('Database query failed for id = "${id}"')
-		}
-
-		id_ := world_map.vals[0]
-		random_number_ := world_map.vals[1]
-
-		world := World{
-			id:            id_ or { '' }.int()
-			random_number: random_number_ or { '' }.int()
-		}
-		worlds << world
-	}
-
-	set_header(mut ctx, 'application/json')
-	return ctx.json(json.encode(worlds))
 }
 
 pub fn (app &App) fortunes(mut ctx Context) veb.Result {
@@ -251,4 +207,24 @@ pub fn (app &App) fortunes(mut ctx Context) veb.Result {
 
 	set_header(mut ctx, 'text/html; charset=UTF-8')
 	return $veb.html()
+}
+
+pub fn (app &App) updates(mut ctx Context) veb.Result {
+	queries := get_query(ctx)
+
+	mut worlds := []World{}
+	for _ in 0 .. queries {
+		id := rand.int_in_range(1, 10001) or { panic(err) }
+		world := get_world(app, id)
+		worlds << world
+	}
+
+	for mut world in worlds {
+		world.random_number = rand.int_in_range(1, 10001) or { panic(err) }
+		app.db.exec_param2('UPDATE World SET randomNumber = $1 WHERE id = $2', world.random_number.str(),
+			world.id.str()) or { return ctx.server_error('Database update failed') }
+	}
+
+	set_header(mut ctx, 'application/json')
+	return ctx.json(json.encode(worlds))
 }
