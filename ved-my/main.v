@@ -1,6 +1,6 @@
 module main
 
-import db.pg
+import db.mysql
 import veb
 
 pub struct Context {
@@ -10,7 +10,7 @@ pub struct Context {
 @[heap]
 pub struct App {
 pub mut:
-	db pg.DB
+	db mysql.DB
 }
 
 // Program entry point
@@ -27,10 +27,10 @@ fn main() {
 
 @[inline]
 fn db_init(mut app App) {
-	app.db = pg.connect(pg.Config{
+	app.db = mysql.connect(mysql.Config{
 		host:     '127.0.0.1'
-		port:     5432
-		user:     'benchmarkdbuser'
+		port:     3306
+		username: 'benchmarkdbuser'
 		password: 'benchmarkdbpass'
 		dbname:   'hello_world'
 	}) or { panic(err) }

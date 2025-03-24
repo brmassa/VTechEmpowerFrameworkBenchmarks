@@ -44,8 +44,10 @@ pub fn (app &App) updates(mut ctx Context) veb.Result {
 
 	for mut world in worlds {
 		world.random_number = rand.int_in_range(1, 10001) or { panic(err) }
-		app.db.exec_param2('UPDATE World SET randomNumber = $1 WHERE id = $2', world.random_number.str(),
-			world.id.str()) or { return ctx.server_error('Database update failed') }
+		app.db.exec_param_many('UPDATE World SET randomNumber = $1 WHERE id = $2', [
+			world.random_number.str(),
+			world.id.str(),
+		]) or { return ctx.server_error('Database update failed') }
 	}
 
 	set_header(mut ctx, 'application/json')
@@ -97,8 +99,8 @@ fn get_cached_world(app &App, id int) World {
 	random_number_ := world_map.vals[1]
 
 	world := World{
-		id:            id_ or { '' }.int()
-		random_number: random_number_ or { '' }.int()
+		id:            id_.int()
+		random_number: random_number_.int()
 	}
 
 	return world
@@ -114,8 +116,8 @@ fn get_world(app &App, id int) World {
 	random_number_ := world_map.vals[1]
 
 	world := World{
-		id:            id_ or { '' }.int()
-		random_number: random_number_ or { '' }.int()
+		id:            id_.int()
+		random_number: random_number_.int()
 	}
 
 	return world
