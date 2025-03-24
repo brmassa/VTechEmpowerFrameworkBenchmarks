@@ -50,10 +50,9 @@ pub fn (app &App) updates(mut ctx Context) veb.Result {
 
 	for mut world in worlds {
 		world.random_number = rand.int_in_range(1, 10001) or { panic(err) }
-		app.db.exec_param_many('UPDATE World SET randomNumber = $1 WHERE id = $2', [
-			world.random_number.str(),
-			world.id.str(),
-		]) or { return ctx.server_error('Database update failed') }
+		sql app.db {
+			update World set random_number = world.random_number where id == world.id
+		} or { return ctx.server_error('Database update failed') }
 	}
 
 	set_header(mut ctx, 'application/json')
@@ -77,36 +76,20 @@ pub fn (app &App) cache(mut ctx Context) veb.Result {
 
 @[inline]
 fn get_cached_world(app &App, id int) CachedWorld {
-	world_map := app.db.exec_one('SELECT id, randomNumber FROM CachedWorld WHERE id = ${id}') or {
-		return CachedWorld{}
-	}
+	world := sql app.db {
+		select from CachedWorld where id == id
+	} or { return CachedWorld{} }
 
-	id_ := world_map.vals[0]
-	random_number_ := world_map.vals[1]
-
-	world := CachedWorld{
-		id:            id_ or { '' }.int()
-		random_number: random_number_ or { '' }.int()
-	}
-
-	return world
+	return world.first()
 }
 
 @[inline]
 fn get_world(app &App, id int) World {
-	world_map := app.db.exec_one('SELECT id, randomNumber FROM World WHERE id = ${id}') or {
-		return World{}
-	}
+	world := sql app.db {
+		select from World where id == id
+	} or { return World{} }
 
-	id_ := world_map.vals[0]
-	random_number_ := world_map.vals[1]
-
-	world := World{
-		id:            id_ or { '' }.int()
-		random_number: random_number_ or { '' }.int()
-	}
-
-	return world
+	return world.first()
 }
 
 @[inline]

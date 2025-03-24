@@ -1,16 +1,15 @@
 module main
 
-import arrays
 import veb
 import rand
 
 // Reset DB World table and fill with 10000 rows with random numbers from 1 to 10000
 pub fn (app &App) db_init(mut ctx Context) veb.Result {
-	mut error, mut error_msq := db_init_world(app, mut ctx, 'World')
+	mut error, mut error_msq := db_init_world(app, mut ctx)
 	if error > 0 {
 		return ctx.server_error(error_msq)
 	}
-	error, error_msq = db_init_world(app, mut ctx, 'CachedWorld')
+	error, error_msq = db_init_world_cached(app, mut ctx)
 	if error > 0 {
 		return ctx.server_error(error_msq)
 	}
@@ -25,43 +24,49 @@ CachedWorld table reset and filled with 10000 rows
 World table reset and filled with default rows')
 }
 
-fn db_init_world(app App, mut ctx Context, table string) (int, string) {
-	app.db.exec('DROP TABLE IF EXISTS ${table}') or {
-		return 1, 'Failed to drop existing ${table} table'
-	}
-	app.db.exec('CREATE TABLE ${table} (
-		id SERIAL PRIMARY KEY,
-		randomNumber INT NOT NULL
-	)') or {
-		return 1, 'Failed to create ${table} table'
+fn db_init_world(app App, mut ctx Context) (int, string) {
+	// sql app.db {
+	// 	drop table World
+	// } or { return 1, 'Failed to drop World table' }
+	sql app.db {
+		create table World
+	} or { return 1, 'Failed to create World table' }
+
+	for _ in 0 .. 10000 {
+		world := World{
+			random_number: rand.int_in_range(1, 10001) or { 1 }
+		}
+
+		sql app.db {
+			insert world into World
+		} or { return 1, 'Random number generation failed' }
 	}
 
-	mut random_numbers := []int{}
+	return 0, ''
+}
+
+fn db_init_world_cached(app App, mut ctx Context) (int, string) {
+	sql app.db {
+		create table CachedWorld
+	} or { return 1, 'Failed to create CachedWorld table' }
+
 	for _ in 0 .. 10000 {
-		random_numbers << rand.int_in_range(1, 10001) or {
-			return 1, 'Random number generation failed'
+		cached_world := CachedWorld{
+			random_number: rand.int_in_range(1, 10001) or { 1 }
 		}
-	}
-	numbers := arrays.join_to_string(random_numbers, '),(', fn (it int) string {
-		return it.str()
-	})
-	app.db.exec('INSERT INTO ${table} (randomNumber) VALUES (${numbers})') or {
-		return 1, 'Failed to insert ${table} values'
+
+		sql app.db {
+			insert cached_world into CachedWorld
+		} or { return 1, 'Random number generation failed' }
 	}
 
 	return 0, ''
 }
 
 fn db_init_fortune(app App, mut ctx Context) (int, string) {
-	app.db.exec('DROP TABLE IF EXISTS Fortune') or {
-		return 1, 'Failed to drop existing Fortune table'
-	}
-	app.db.exec('CREATE TABLE Fortune (
-		id SERIAL PRIMARY KEY,
-		message VARCHAR NOT NULL
-	)') or {
-		return 1, 'Failed to create Fortune table'
-	}
+	sql app.db {
+		create table Fortune
+	} or { return 1, 'Failed to create Fortune table' }
 
 	mut messages := []string{}
 	messages << 'fortune: No such file or directory'
@@ -76,11 +81,14 @@ fn db_init_fortune(app App, mut ctx Context) (int, string) {
 	messages << 'Computers make very fast, very accurate mistakes.'
 	messages << '<script>alert("This should not be displayed in a browser alert box.");</script>'
 	messages << 'フレームワークのベンチマーク'
-	message := arrays.join_to_string(messages, "'),('", fn (it string) string {
-		return it
-	})
-	app.db.exec('INSERT INTO Fortune (message) VALUES (\'${message}\')') or {
-		return 1, 'Failed to insert Fortune messages'
+
+	for message in messages {
+		fortune := Fortune{
+			message: message
+		}
+		sql app.db {
+			insert fortune into Fortune
+		} or { return 1, 'Failed to insert Fortune message' }
 	}
 
 	return 0, ''

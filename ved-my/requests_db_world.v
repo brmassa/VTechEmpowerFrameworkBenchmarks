@@ -10,6 +10,12 @@ mut:
 	random_number int @[sql: 'randomNumber']
 }
 
+struct CachedWorld {
+	id int @[primary; sql: serial]
+mut:
+	random_number int @[sql: 'randomNumber']
+}
+
 pub fn (app &App) db(mut ctx Context) veb.Result {
 	id := rand.int_in_range(1, 10001) or { panic(err) }
 	world := get_world(app, id)
@@ -54,30 +60,13 @@ pub fn (app &App) updates(mut ctx Context) veb.Result {
 	return ctx.json(json.encode(worlds))
 }
 
-// @['/cached-queries']
-// pub fn (app &App) cache(mut ctx Context) veb.Result {
-// 	queries := get_query(ctx, 'count')
-
-// 	mut worlds := []World{}
-// 	for _ in 0 .. queries {
-// 		id := rand.int_in_range(1, 10001) or { panic(err) }
-// 		world := get_world(app, id)
-// 		worlds << world
-// 	}
-
-// 	set_header(mut ctx, 'application/json')
-// 	return ctx.json(json.encode(worlds))
-// }
-
 @['/cached-queries']
 pub fn (app &App) cache(mut ctx Context) veb.Result {
-	// Get the count parameter and bound it between 1 and 500
 	count := get_query(ctx, 'count')
 
-	mut worlds := []World{}
+	mut worlds := []CachedWorld{}
 	for _ in 0 .. count {
 		id := rand.int_in_range(1, 10001) or { panic(err) }
-		// Retrieve World object from cache or database
 		world := get_cached_world(app, id)
 		worlds << world
 	}
@@ -87,18 +76,15 @@ pub fn (app &App) cache(mut ctx Context) veb.Result {
 }
 
 @[inline]
-fn get_cached_world(app &App, id int) World {
-	// For this implementation, we're not actually caching
-	// but the real implementation would check a cache first
-	// before accessing the database
+fn get_cached_world(app &App, id int) CachedWorld {
 	world_map := app.db.exec_one('SELECT id, randomNumber FROM CachedWorld WHERE id = ${id}') or {
-		return World{}
+		return CachedWorld{}
 	}
 
 	id_ := world_map.vals[0]
 	random_number_ := world_map.vals[1]
 
-	world := World{
+	world := CachedWorld{
 		id:            id_.int()
 		random_number: random_number_.int()
 	}

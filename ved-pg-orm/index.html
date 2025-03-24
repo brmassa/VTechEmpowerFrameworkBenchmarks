@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+    <head>
+        <title>V web server</title>
+        <style>
+            .list {
+            }
+            .list li {
+                display: inline-block;
+            }
+        </style>
+    </head>
+    <body>
+        <h1><i>V</i> web server</h1>
+        <p>
+            Welcome to <a href="https://vlang.io">V</a> lang example web server
+            for
+            <a href="https://www.techempower.com/benchmarks">
+                Web Framework Benchmarks
+            </a>
+        </p>
+
+        <h2>Settings</h2>
+        <ul>
+            <li>v: 0.4.10</li>
+            <li>Postgres (version is a user choice)</li>
+            <li>
+                Used V libraries and modules:
+                <ul>
+                    <li>
+                        <a href="https://modules.vlang.io/veb.html">ved</a>: web
+                        server and front-end
+                    </li>
+                    <li>
+                        <a href="https://modules.vlang.io/db.pg.html">db.pg</a>:
+                        Postgres connector
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>Local Setup</h2>
+        <ul>
+            <li><a href="/db_init">Database setup</a></li>
+        </ul>
+
+        <h2>Benchmark Tests</h2>
+        <ul>
+            <li><a href="/json">JSON serialization</a></li>
+            <li><a href="/db">Single query</a></li>
+            <li>
+                <a href="/queries">Multiple queries</a>
+                <ul class="list">
+                    <li><a href="/queries?queries=0"> 0</a></li>
+                    <li><a href="/queries?queries=1"> 1</a></li>
+                    <li><a href="/queries?queries=5"> 5</a></li>
+                    <li><a href="/queries?queries=10"> 10</a></li>
+                    <li><a href="/queries?queries=15"> 15</a></li>
+                    <li><a href="/queries?queries=20"> 20</a></li>
+                    <li><a href="/queries?queries=50"> 50</a></li>
+                    <li><a href="/queries?queries=100"> 100</a></li>
+                    <li><a href="/queries?queries=500"> 500</a></li>
+                    <li><a href="/queries?queries=1000"> 1000 </a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="/cached-queries">Cached queries</a>
+                <ul class="list">
+                    <li><a href="/cached-queries?count=0"> 0</a></li>
+                    <li><a href="/cached-queries?count=1"> 1</a></li>
+                    <li><a href="/cached-queries?count=5"> 5</a></li>
+                    <li><a href="/cached-queries?count=10"> 10</a></li>
+                    <li><a href="/cached-queries?count=15"> 15</a></li>
+                    <li><a href="/cached-queries?count=20"> 20</a></li>
+                    <li><a href="/cached-queries?count=50"> 50</a></li>
+                    <li><a href="/cached-queries?count=100"> 100</a></li>
+                    <li><a href="/cached-queries?count=500"> 500</a></li>
+                    <li><a href="/cached-queries?count=1000"> 1000 </a></li>
+                </ul>
+            </li>
+            <li><a href="/fortunes">Fortunes</a></li>
+            <li>
+                <a href="/updates">Data updates</a>
+                <ul class="list">
+                    <li><a href="/updates?queries=0"> 0</a></li>
+                    <li><a href="/updates?queries=1"> 1</a></li>
+                    <li><a href="/updates?queries=5"> 5</a></li>
+                    <li><a href="/updates?queries=10"> 10</a></li>
+                    <li><a href="/updates?queries=15"> 15</a></li>
+                    <li><a href="/updates?queries=20"> 20</a></li>
+                    <li><a href="/updates?queries=50"> 50</a></li>
+                    <li><a href="/updates?queries=100"> 100</a></li>
+                    <li><a href="/updates?queries=500"> 500</a></li>
+                    <li><a href="/updates?queries=1000"> 1000 </a></li>
+                </ul>
+            </li>
+            <li><a href="/plaintext">Plaintext</a></li>
+        </ul>
+    </body>
+</html>

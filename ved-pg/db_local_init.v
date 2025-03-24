@@ -14,6 +14,10 @@ pub fn (app &App) db_init(mut ctx Context) veb.Result {
 	if error > 0 {
 		return ctx.server_error(error_msq)
 	}
+	error, error_msq = db_init_fortune(app, mut ctx)
+	if error > 0 {
+		return ctx.server_error(error_msq)
+	}
 
 	set_header(mut ctx, 'text/plain')
 	return ctx.text('World table reset and filled with 10000 rows
@@ -48,7 +52,7 @@ fn db_init_world(app App, mut ctx Context, table string) (int, string) {
 	return 0, ''
 }
 
-fn db_init_fortune(mut app App, mut ctx Context) (int, string) {
+fn db_init_fortune(app App, mut ctx Context) (int, string) {
 	app.db.exec('DROP TABLE IF EXISTS Fortune') or {
 		return 1, 'Failed to drop existing Fortune table'
 	}
