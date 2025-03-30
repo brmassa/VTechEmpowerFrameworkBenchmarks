@@ -9,10 +9,10 @@
                 <th>id</th>
                 <th>message</th>
             </tr>
-            @for fortune in fortunes
+            @for m in fortunes
             <tr>
-                <td>${fortune.id}</td>
-                <td>${fortune.message}</td>
+                <td>@m.id</td>
+                <td>@m.message</td>
             </tr>
             @end
         </table>
